@@ -11,7 +11,7 @@ We collaborated on developing a full-stack JavaScript game using Docker, React, 
 
 
 ## Status
-ft_transcendence is still in progress.
+ft_transcendence is still in progress 🔄
 
 ## Credits
 List of contriubutors:
