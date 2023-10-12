@@ -4,6 +4,12 @@ We collaborated on developing a full-stack JavaScript game using Docker, React, 
 
 "it is the final project of 42's common core"
 
+## Table of Content:
+
+- [Status](#status)
+- [Credits](#credits)
+
+
 ## Status
 ft_transcendence is still in progress.
 
