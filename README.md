@@ -4,6 +4,9 @@ We collaborated on developing a full-stack JavaScript game using Docker, React, 
 
 "it is the final project of 42's common core"
 
+## Status
+ft_transcendence is still in progress.
+
 ## Credits
 List of contriubutors:
 - [ Mojtaba Jafari ](https://github.com/Himjpro)
