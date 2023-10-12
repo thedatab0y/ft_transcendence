@@ -6,6 +6,6 @@ We collaborated on developing a full-stack JavaScript game using Docker, React, 
 
 ## Credits
 List of contriubutors:
-- [Zafarbek Yunusov](https://github.com/Cursedzyko)
 - [ Mojtaba Jafari ](https://github.com/Himjpro)
+- [Zafarbek Yunusov](https://github.com/Cursedzyko)
 - [ Bekchanboy Usmanov ](https://github.com/thedatab0y)
