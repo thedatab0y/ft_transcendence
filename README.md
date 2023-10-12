@@ -4,6 +4,8 @@ We collaborated on developing a full-stack JavaScript game using Docker, React, 
 
 "it is the final project of 42's common core"
 
+For more details, please read subject file `en.subject.pdf`.
+
 ## Table of Content:
 
 - [Status](#status)
