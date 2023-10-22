@@ -28,12 +28,14 @@ services:
       - backend
 
   db:
-    image: postgres
+    build:
+      context: .
+      dockerfile: db/Dockerfile
+    container_name: db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
     restart: always
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    container_name: postgres
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
