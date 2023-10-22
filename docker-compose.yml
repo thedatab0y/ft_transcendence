@@ -11,6 +11,8 @@ services:
     volumes:
       - ./backend/app/src:/app/src
     restart: always
+    depends_on:
+      - db
   
   frontend:
     build:
@@ -22,3 +24,16 @@ services:
     volumes:
       - ./frontend/app/src:/app/src
     restart: always
+    depends_on:
+      - backend
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    container_name: postgres
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
