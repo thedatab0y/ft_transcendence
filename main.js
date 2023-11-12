@@ -124,25 +124,27 @@ document.addEventListener('keyup', (event) => {
 function animate() {
     requestAnimationFrame(animate);
 
- if (keyState.w) {
+    if (keyState.w && racket.position.z > -395 && racket.position.z <= 100) {
         racket.translateZ(-5); // Move the racket backward
+        console.log('Rocket props while rendering W: ', racket.position);
     }
-
-    if (keyState.s) {
+    
+    if (keyState.s && racket.position.z >= -395 && racket.position.z < 100) {
         racket.translateZ(5); // Move the racket forward
+        console.log('Rocket props while rendering S: ', racket.position);
     }
-
+    
     // Clamp racket position to stay within table boundaries
     const halfRacketHeight = racketH / 2;
     racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
-
+    
     const halfRacketDepth = racketD / 2;
     const tableCenterZ = 300; // Center of the table along the z-axis
     const tableHalfDepth = tableD / 2;
-
+    
+    // racket.position.z = 100;
     // Clamp racket position along the z-axis to stay within the table boundaries
-    racket.position.z = Math.max(-(tableCenterZ + tableHalfDepth) + halfRacketDepth, Math.min(tableCenterZ + tableHalfDepth - halfRacketDepth, racket.position.z));
-
+    // racket.position.z = Math.max(-(tableCenterZ + tableHalfDepth) + halfRacketDepth, Math.min(tableCenterZ + tableHalfDepth - halfRacketDepth, racket.position.z));
     
     renderer.render(scene, camera);
     orbit.update();
