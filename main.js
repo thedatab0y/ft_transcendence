@@ -18,6 +18,7 @@ const tableGeometry = new THREE.BoxGeometry(tableW, tableH, tableD);
 // Create the table mesh
 const table = new THREE.Mesh(tableGeometry, tableMaterial);
 table.castShadow = true; // Enable shadow casting
+table.receiveShadow = true; // Enable shadow receiving
 
 // Position the larger table at the center and slightly more back on the scene
 table.position.set(0, -10, -tableD / 4);
@@ -39,18 +40,30 @@ const racketGeometry = new THREE.BoxGeometry(racketW, racketH, racketD);
 // Create the racket mesh
 const racket = new THREE.Mesh(racketGeometry, racketMaterial);
 racket.castShadow = true; // Enable shadow casting
-
+racket.receiveShadow = true; // Enable shadow receiving
 
 // Position the racket on the left side
 racket.position.set(-((tableW / 2) - (racketW / 2) - 10), tableH / 2 + racketH, -(tableD / 4));
-// racket.position.set(-(tableW / 2) - (racketW / 2), 0, -(tableD / 4));
 
-// -(tableD / 4)
 // Add the racket to the scene
 scene.add(racket);
 
-console.log('Rocket pisition: ' , racket.position );
-console.log("Table Position: " , table.position);
+// Create a material for the right racket
+const rRacketMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 30 });
+
+// Create a BoxGeometry for the right racket
+const rRacketGeometry = new THREE.BoxGeometry(racketW, racketH, racketD);
+
+// Create the right racket mesh
+const rRacket = new THREE.Mesh(rRacketGeometry, rRacketMaterial);
+rRacket.castShadow = true;
+rRacket.receiveShadow = true; // Enable shadow receiving
+
+// Position the right racket on the right side
+rRacket.position.set((tableW / 2) - (racketW / 2) - 10, tableH / 2 + racketH, -(tableD / 4));
+
+// Add the right racket to the scene
+scene.add(rRacket);
 
 // Create a camera with an increased field of view for a more top-down perspective
 const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 2000);
@@ -61,6 +74,7 @@ camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // Enable shadows
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
 renderer.setClearColor(new THREE.Color(0x808080));
 document.body.appendChild(renderer.domElement);
 
@@ -68,15 +82,23 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
+// Add directional light with shadows from right to left
+const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
+directionalLight.position.set(5, 1, -3);
+directionalLight.castShadow = true;
+
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 1000;
+directionalLight.shadow.camera.left = -700;
+directionalLight.shadow.camera.right = 700;
+directionalLight.shadow.camera.top = 200;
+directionalLight.shadow.camera.bottom = -200;
+
+scene.add(directionalLight);
+
 // Create grid helper
 const gridHelper = new THREE.GridHelper(2000, 50, 0xff0000, 0xff0000);
 scene.add(gridHelper);
-
-// Add directional light with shadows from right to left
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(5, 1, -1);
-directionalLight.castShadow = true;
-scene.add(directionalLight);
 
 // Create axes helper
 const axesHelper = new THREE.AxesHelper(1000);
@@ -101,7 +123,9 @@ window.addEventListener('resize', () => {
 // Handle key events for racket movement
 const keyState = {
     w: false,
-    s: false
+    s: false,
+    up: false,
+    down: false
 };
 
 document.addEventListener('keydown', (event) => {
@@ -120,32 +144,52 @@ document.addEventListener('keyup', (event) => {
     }
 });
 
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp') {
+        keyState.up = true;
+    } else if (event.key === 'ArrowDown') {
+        keyState.down = true;
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.key === 'ArrowUp') {
+        keyState.up = false;
+    } else if (event.key === 'ArrowDown') {
+        keyState.down = false;
+    }
+});
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
 
-    if (keyState.w && racket.position.z > -395 && racket.position.z <= 100) {
+    if (keyState.w && racket.position.z > -395 && racket.position.z <= 95) {
         racket.translateZ(-5); // Move the racket backward
         console.log('Rocket props while rendering W: ', racket.position);
     }
-    
-    if (keyState.s && racket.position.z >= -395 && racket.position.z < 100) {
+
+    if (keyState.s && racket.position.z >= -395 && racket.position.z < 95) {
         racket.translateZ(5); // Move the racket forward
         console.log('Rocket props while rendering S: ', racket.position);
     }
-    
+
+    if (keyState.up && rRacket.position.z > -395 && rRacket.position.z <= 95) {
+        rRacket.translateZ(-5); // Move the right racket backward
+        console.log('Right Racket props while rendering ArrowUp: ', rRacket.position);
+    }
+
+    if (keyState.down && rRacket.position.z >= -395 && rRacket.position.z < 95) {
+        rRacket.translateZ(5); // Move the right racket forward
+        console.log('Right Racket props while rendering ArrowDown: ', rRacket.position);
+    }
+
+
     // Clamp racket position to stay within table boundaries
     const halfRacketHeight = racketH / 2;
     racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
-    
-    const halfRacketDepth = racketD / 2;
-    const tableCenterZ = 300; // Center of the table along the z-axis
-    const tableHalfDepth = tableD / 2;
-    
-    // racket.position.z = 100;
-    // Clamp racket position along the z-axis to stay within the table boundaries
-    // racket.position.z = Math.max(-(tableCenterZ + tableHalfDepth) + halfRacketDepth, Math.min(tableCenterZ + tableHalfDepth - halfRacketDepth, racket.position.z));
-    
+    rRacket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, rRacket.position.y));
+
     renderer.render(scene, camera);
     orbit.update();
 }
