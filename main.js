@@ -65,6 +65,19 @@ rRacket.position.set((tableW / 2) - (racketW / 2) - 10, tableH / 2 + racketH, -(
 // Add the right racket to the scene
 scene.add(rRacket);
 
+//Create a ball
+const ballGeometry = new THREE.SphereGeometry(15, 300, 300);
+
+const ballMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+});
+
+const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+ball.position.set(0, tableH / 2 + 7, -(tableD / 4));
+
+scene.add(ball);
+
 // Create a camera with an increased field of view for a more top-down perspective
 const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 2000);
 camera.position.set(0, 400, 300);
@@ -103,6 +116,7 @@ scene.add(gridHelper);
 // Create axes helper
 const axesHelper = new THREE.AxesHelper(1000);
 scene.add(axesHelper);
+
 
 // Create OrbitControls
 const orbit = new OrbitControls(camera, renderer.domElement);
