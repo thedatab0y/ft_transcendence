@@ -174,6 +174,26 @@ document.addEventListener('keyup', (event) => {
     }
 });
 
+let ballVelocity = new THREE.Vector3(2, 0, 2);
+
+// Handle ball collision
+function checkCollision() {
+    const originPoint = ball.position.clone();
+    const ray = new THREE.Raycaster(originPoint, ballVelocity.clone().normalize());
+
+    // Check for collisions with rackets and table
+    const allCollisions = ray.intersectObjects([racket, rRacket, table]);
+
+    if (allCollisions.length > 0) {
+        // Find the closest collision
+        const closestCollision = allCollisions.reduce((a, b) => a.distance < b.distance ? a : b);
+
+        // Reflect the ball's direction based on the surface it hit
+        const reflectedDirection = ballVelocity.clone().reflect(closestCollision.face.normal);
+        ballVelocity.copy(reflectedDirection);
+    }
+}
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
@@ -198,7 +218,20 @@ function animate() {
         console.log('Right Racket props while rendering ArrowDown: ', rRacket.position);
     }
 
+     // Call the collision detection function
+     checkCollision();
 
+     // Update the ball's position based on its velocity
+     ball.position.x += ballVelocity.x;
+     ball.position.y += ballVelocity.y;
+     ball.position.z += ballVelocity.z;
+ 
+     // Clamp ball position to stay within table boundaries
+     ball.position.x = Math.max(-tableW / 2 + 7.5, Math.min(tableW / 2 - 7.5, ball.position.x));
+     ball.position.y = Math.max(-tableH / 2 + 7.5, Math.min(tableH / 2 - 7.5, ball.position.y));
+     ball.position.z = Math.max(-(tableD / 4) + 7.5, Math.min((tableD / 4) - 7.5, ball.position.z));
+ 
+    console.log(ball.position);
     // Clamp racket position to stay within table boundaries
     const halfRacketHeight = racketH / 2;
     racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
