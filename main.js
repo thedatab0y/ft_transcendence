@@ -178,21 +178,20 @@ let ballVelocity = new THREE.Vector3(2, 0, 2);
 
 // Handle ball collision
 function checkCollision() {
-    const originPoint = ball.position.clone();
-    const ray = new THREE.Raycaster(originPoint, ballVelocity.clone().normalize());
+    const ballRadius = 15; // Assuming ball has a radius of 15 units
 
-    // Check for collisions with rackets and table
-    const allCollisions = ray.intersectObjects([racket, rRacket, table]);
-
-    if (allCollisions.length > 0) {
-        // Find the closest collision
-        const closestCollision = allCollisions.reduce((a, b) => a.distance < b.distance ? a : b);
-
-        // Reflect the ball's direction based on the surface it hit
-        const reflectedDirection = ballVelocity.clone().reflect(closestCollision.face.normal);
-        ballVelocity.copy(reflectedDirection);
+    // Check collision with table depth boundaries
+    if (ball.position.z - ballRadius <= -(tableD / 1.5) + 20 && ballVelocity.z < 0) {
+        // Ball hits the lower wall, reverse the ball's z-axis direction
+        ballVelocity.z *= -1;
+    } else if (ball.position.z + ballRadius >= (tableD / 4) - 20 && ballVelocity.z > 0) {
+        // Ball hits the upper wall, reverse the ball's z-axis direction
+        ballVelocity.z *= -1;
     }
 }
+
+
+
 
 // Animation loop
 function animate() {
@@ -200,38 +199,41 @@ function animate() {
 
     if (keyState.w && racket.position.z > -395 && racket.position.z <= 95) {
         racket.translateZ(-5); // Move the racket backward
-        console.log('Rocket props while rendering W: ', racket.position);
+        // console.log('Rocket props while rendering W: ', racket.position);
     }
 
     if (keyState.s && racket.position.z >= -395 && racket.position.z < 95) {
         racket.translateZ(5); // Move the racket forward
-        console.log('Rocket props while rendering S: ', racket.position);
+        // console.log('Rocket props while rendering S: ', racket.position);
     }
 
     if (keyState.up && rRacket.position.z > -395 && rRacket.position.z <= 95) {
         rRacket.translateZ(-5); // Move the right racket backward
-        console.log('Right Racket props while rendering ArrowUp: ', rRacket.position);
+        // console.log('Right Racket props while rendering ArrowUp: ', rRacket.position);
     }
 
     if (keyState.down && rRacket.position.z >= -395 && rRacket.position.z < 95) {
         rRacket.translateZ(5); // Move the right racket forward
-        console.log('Right Racket props while rendering ArrowDown: ', rRacket.position);
+        // console.log('Right Racket props while rendering ArrowDown: ', rRacket.position);
     }
-
      // Call the collision detection function
-     checkCollision();
+    // console.log('Table Global Position:', table.position);
+    checkCollision();
+     // Update the ball's position based on its velocity// Update the ball's position based on its velocity
+    ball.position.x += ballVelocity.x;
+    ball.position.y += ballVelocity.y;
+    ball.position.z += ballVelocity.z;
 
-     // Update the ball's position based on its velocity
-     ball.position.x += ballVelocity.x;
-     ball.position.y += ballVelocity.y;
-     ball.position.z += ballVelocity.z;
+    // Clamp ball position to stay within table boundaries
+    ball.position.x = Math.max(-tableW / 2 , Math.min(tableW / 2 , ball.position.x));
+    // ball.position.y = Math.max(-tableH / 2 + 7.5, Math.min(tableH / 2 - 7.5, ball.position.y));
+    ball.position.z = Math.max(-(tableD / 1.5 + 25), Math.min((tableD / 4) - 20, ball.position.z));
+
+    // let m = -(tableD / 1.5) + 25;
+    // let mi = (tableD / 4) - 21;
+    // console.log(`Max: ${m}, Min: ${mi}`);
  
-     // Clamp ball position to stay within table boundaries
-     ball.position.x = Math.max(-tableW / 2 + 7.5, Math.min(tableW / 2 - 7.5, ball.position.x));
-     ball.position.y = Math.max(-tableH / 2 + 7.5, Math.min(tableH / 2 - 7.5, ball.position.y));
-     ball.position.z = Math.max(-(tableD / 4) + 7.5, Math.min((tableD / 4) - 7.5, ball.position.z));
- 
-    console.log(ball.position);
+    // console.log(ball.position);
     // Clamp racket position to stay within table boundaries
     const halfRacketHeight = racketH / 2;
     racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
