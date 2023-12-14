@@ -175,16 +175,21 @@ document.addEventListener('keyup', (event) => {
 });
 
 let ballVelocity = new THREE.Vector3(2, 0, 2);
+const tablePosZ = -150;
+const ballRadius = 15;
+
+const minZ = tablePosZ - tableD / 2 + ballRadius;
+const maxZ = tablePosZ + tableD / 2 - ballRadius;
 
 // Handle ball collision
 function checkCollision() {
-    const ballRadius = 15; // Assuming ball has a radius of 15 units
+    // const ballRadius = 15; // Assuming ball has a radius of 15 units
 
     // Check collision with table depth boundaries
-    if (ball.position.z - ballRadius <= -(tableD / 1.5) + 20 && ballVelocity.z < 0) {
+    if (ball.position.z - ballRadius <= minZ && ballVelocity.z < 0) {
         // Ball hits the lower wall, reverse the ball's z-axis direction
         ballVelocity.z *= -1;
-    } else if (ball.position.z + ballRadius >= (tableD / 4) - 20 && ballVelocity.z > 0) {
+    } else if (ball.position.z + ballRadius >= maxZ && ballVelocity.z > 0) {
         // Ball hits the upper wall, reverse the ball's z-axis direction
         ballVelocity.z *= -1;
     }
@@ -227,7 +232,7 @@ function animate() {
     // Clamp ball position to stay within table boundaries
     ball.position.x = Math.max(-tableW / 2 , Math.min(tableW / 2 , ball.position.x));
     // ball.position.y = Math.max(-tableH / 2 + 7.5, Math.min(tableH / 2 - 7.5, ball.position.y));
-    ball.position.z = Math.max(-(tableD / 1.5 + 25), Math.min((tableD / 4) - 20, ball.position.z));
+    ball.position.z = Math.max(minZ, Math.min(maxZ, ball.position.z));
 
     // let m = -(tableD / 1.5) + 25;
     // let mi = (tableD / 4) - 21;
