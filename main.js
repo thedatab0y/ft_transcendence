@@ -1,71 +1,55 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-// Create a scene
 const scene = new THREE.Scene();
 
-// Create a material for the table
+// table
 const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 30 });
 
-// Dimensions of an even larger table
 const tableW = 1200;
 const tableH = 75;
 const tableD = 600;
 
-// Create a BoxGeometry for the table
 const tableGeometry = new THREE.BoxGeometry(tableW, tableH, tableD);
 
-// Create the table mesh
 const table = new THREE.Mesh(tableGeometry, tableMaterial);
 table.castShadow = true; // Enable shadow casting
 table.receiveShadow = true; // Enable shadow receiving
 
-// Position the larger table at the center and slightly more back on the scene
 table.position.set(0, -10, -tableD / 4);
 
-// Add the larger table to the scene
 scene.add(table);
 
-// Create a material for the racket
+// racket
 const racketMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 30 });
 
-// Dimensions of the racket
 const racketW = 20;
 const racketH = 100;
 const racketD = 100;
 
-// Create a BoxGeometry for the racket
 const racketGeometry = new THREE.BoxGeometry(racketW, racketH, racketD);
 
-// Create the racket mesh
 const racket = new THREE.Mesh(racketGeometry, racketMaterial);
 racket.castShadow = true; // Enable shadow casting
 racket.receiveShadow = true; // Enable shadow receiving
 
-// Position the racket on the left side
 racket.position.set(-((tableW / 2) - (racketW / 2) - 10), tableH / 2 + racketH, -(tableD / 4));
 
-// Add the racket to the scene
 scene.add(racket);
 
-// Create a material for the right racket
 const rRacketMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 30 });
 
-// Create a BoxGeometry for the right racket
 const rRacketGeometry = new THREE.BoxGeometry(racketW, racketH, racketD);
 
-// Create the right racket mesh
 const rRacket = new THREE.Mesh(rRacketGeometry, rRacketMaterial);
 rRacket.castShadow = true;
 rRacket.receiveShadow = true; // Enable shadow receiving
 
-// Position the right racket on the right side
 rRacket.position.set((tableW / 2) - (racketW / 2) - 10, tableH / 2 + racketH, -(tableD / 4));
 
-// Add the right racket to the scene
 scene.add(rRacket);
 
-//Create a ball
+//ball
 const ballGeometry = new THREE.SphereGeometry(15, 300, 300);
 
 const ballMaterial = new THREE.MeshBasicMaterial({
@@ -83,7 +67,6 @@ const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerH
 camera.position.set(0, 400, 300);
 camera.lookAt(0, 0, 0);
 
-// Create a renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // Enable shadows
@@ -134,7 +117,6 @@ window.addEventListener('resize', () => {
     orbit.update();
 });
 
-// Handle key events for racket movement
 const keyState = {
     w: false,
     s: false,
@@ -174,34 +156,16 @@ document.addEventListener('keyup', (event) => {
     }
 });
 
-let ballVelocity = new THREE.Vector3(2, 0, 2);
+let ballVelocity = new THREE.Vector3(3, 0, 3);
 const tablePosZ = -150;
 const ballRadius = 15;
 
 const minZ = tablePosZ - tableD / 2 + ballRadius;
 const maxZ = tablePosZ + tableD / 2 - ballRadius;
+const halfRacketHeight = racketH / 2;
 
-// Handle ball collision
-function checkCollision() {
-    // const ballRadius = 15; // Assuming ball has a radius of 15 units
-
-    // Check collision with table depth boundaries
-    if (ball.position.z - ballRadius <= minZ && ballVelocity.z < 0) {
-        // Ball hits the lower wall, reverse the ball's z-axis direction
-        ballVelocity.z *= -1;
-    } else if (ball.position.z + ballRadius >= maxZ && ballVelocity.z > 0) {
-        // Ball hits the upper wall, reverse the ball's z-axis direction
-        ballVelocity.z *= -1;
-    }
-}
-
-
-
-
-// Animation loop
-function animate() {
-    requestAnimationFrame(animate);
-
+function racketsMove()
+{
     if (keyState.w && racket.position.z > -395 && racket.position.z <= 95) {
         racket.translateZ(-5); // Move the racket backward
         // console.log('Rocket props while rendering W: ', racket.position);
@@ -221,17 +185,61 @@ function animate() {
         rRacket.translateZ(5); // Move the right racket forward
         // console.log('Right Racket props while rendering ArrowDown: ', rRacket.position);
     }
-     // Call the collision detection function
+}
+
+// Handle ball collision
+function checkCollision() {
+    // Check collision with table depth boundaries
+    if (ball.position.z - ballRadius <= minZ && ballVelocity.z < 0) {
+        // Ball hits the lower wall
+        ballVelocity.z *= -1;
+    } else if (ball.position.z + ballRadius >= maxZ && ballVelocity.z > 0) {
+        // Ball hits the upper wall
+        ballVelocity.z *= -1;
+    }
+
+    // Check collision with left racket
+    if (
+        ball.position.x - ballRadius <= racket.position.x + racketW / 2 &&
+        ball.position.x + ballRadius >= racket.position.x - racketW / 2 &&
+        ball.position.y - ballRadius <= racket.position.y + racketH / 2 &&
+        ball.position.y + ballRadius >= racket.position.y - racketH / 2 &&
+        ball.position.z + ballRadius >= racket.position.z - racketD / 2 &&
+        ball.position.z - ballRadius <= racket.position.z + racketD / 2
+    ) {
+        ballVelocity.x *= -1;
+    }
+
+    // Check collision with right racket
+    if (
+        ball.position.x - ballRadius <= rRacket.position.x + racketW / 2 &&
+        ball.position.x + ballRadius >= rRacket.position.x - racketW / 2 &&
+        ball.position.y - ballRadius <= rRacket.position.y + racketH / 2 &&
+        ball.position.y + ballRadius >= rRacket.position.y - racketH / 2 &&
+        ball.position.z + ballRadius >= rRacket.position.z - racketD / 2 &&
+        ball.position.z - ballRadius <= rRacket.position.z + racketD / 2
+    ) {
+        ballVelocity.x *= -1;
+    }
+}
+
+
+
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    // function to move rackets within the table boundaries
+    racketsMove();
     // console.log('Table Global Position:', table.position);
     checkCollision();
-     // Update the ball's position based on its velocity// Update the ball's position based on its velocity
+     // Update ball position based on its velocity
     ball.position.x += ballVelocity.x;
     ball.position.y += ballVelocity.y;
     ball.position.z += ballVelocity.z;
 
-    // Clamp ball position to stay within table boundaries
+    // ball position to stay within table boundaries
     ball.position.x = Math.max(-tableW / 2 , Math.min(tableW / 2 , ball.position.x));
-    // ball.position.y = Math.max(-tableH / 2 + 7.5, Math.min(tableH / 2 - 7.5, ball.position.y));
     ball.position.z = Math.max(minZ, Math.min(maxZ, ball.position.z));
 
     // let m = -(tableD / 1.5) + 25;
@@ -239,8 +247,7 @@ function animate() {
     // console.log(`Max: ${m}, Min: ${mi}`);
  
     // console.log(ball.position);
-    // Clamp racket position to stay within table boundaries
-    const halfRacketHeight = racketH / 2;
+    // racket position to stay within table boundaries
     racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
     rRacket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, rRacket.position.y));
 
