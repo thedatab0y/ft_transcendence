@@ -156,13 +156,19 @@ document.addEventListener('keyup', (event) => {
     }
 });
 
-let ballVelocity = new THREE.Vector3(3, 0, 3);
+let ballVelocity = new THREE.Vector3(4, 0, 4);
+
 const tablePosZ = -150;
 const ballRadius = 15;
-
-const minZ = tablePosZ - tableD / 2 + ballRadius;
-const maxZ = tablePosZ + tableD / 2 - ballRadius;
 const halfRacketHeight = racketH / 2;
+
+const tableProp = {
+    minZ : tablePosZ - tableD / 2 + ballRadius,
+    maxZ : tablePosZ + tableD / 2 - ballRadius,
+    minX : -tableW / 2,
+    maxX: tableW / 2
+};
+
 
 function racketsMove()
 {
@@ -190,13 +196,23 @@ function racketsMove()
 // Handle ball collision
 function checkCollision() {
     // Check collision with table depth boundaries
-    if (ball.position.z - ballRadius <= minZ && ballVelocity.z < 0) {
+    if (ball.position.z - ballRadius <= tableProp.minZ && ballVelocity.z < 0) {
         // Ball hits the lower wall
         ballVelocity.z *= -1;
-    } else if (ball.position.z + ballRadius >= maxZ && ballVelocity.z > 0) {
+    } else if (ball.position.z + ballRadius >= tableProp.maxZ && ballVelocity.z > 0) {
         // Ball hits the upper wall
         ballVelocity.z *= -1;
     }
+
+    // When player scores
+    if (ball.position.x + ballRadius >= tableProp.maxX && ballVelocity.x > 0) {
+        console.log("Left scored!!!");
+        resetBall();
+    } else if (ball.position.x - ballRadius <= tableProp.minX && ballVelocity.x < 0) {
+        console.log("Right scored!!!");
+        resetBall();
+    }
+    
 
     // Check collision with left racket
     if (
@@ -223,8 +239,13 @@ function checkCollision() {
     }
 }
 
-
-
+// reset ball pos 
+function resetBall() {
+    ball.position.set(0, tableH / 2 + 7, -(tableD / 4));
+    ballVelocity.x *= -1;
+    // ballVelocity.z *= -1;
+    // ballVelocity.set(2, 0, 2); // Set initial velocity
+}
 
 // Animation loop
 function animate() {
@@ -239,8 +260,8 @@ function animate() {
     ball.position.z += ballVelocity.z;
 
     // ball position to stay within table boundaries
-    ball.position.x = Math.max(-tableW / 2 , Math.min(tableW / 2 , ball.position.x));
-    ball.position.z = Math.max(minZ, Math.min(maxZ, ball.position.z));
+    ball.position.x = Math.max(tableProp.minX , Math.min(tableProp.maxX , ball.position.x));
+    ball.position.z = Math.max(tableProp.minZ, Math.min(tableProp.maxZ, ball.position.z));
 
     // let m = -(tableD / 1.5) + 25;
     // let mi = (tableD / 4) - 21;
