@@ -105,6 +105,29 @@ scene.add(axesHelper);
 const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.update();
 
+//creating players
+class Player {
+    constructor(name)
+    {
+        this.name = name;
+        this.score = 0;
+    }
+
+    increaseScore()
+    {
+        this.score++;
+    }
+
+    print()
+    {
+        console.log(`${this.name} : ${this.score} `);
+    }
+}
+
+const player1 = new Player("PLayer 1"); // right
+const player2 = new Player("Player 2"); // left
+
+
 // Handle window resize
 window.addEventListener('resize', () => {
     const newWidth = window.innerWidth;
@@ -170,6 +193,8 @@ const tableProp = {
 };
 
 
+
+
 function racketsMove()
 {
     if (keyState.w && racket.position.z > -395 && racket.position.z <= 95) {
@@ -206,10 +231,14 @@ function checkCollision() {
 
     // When player scores
     if (ball.position.x + ballRadius >= tableProp.maxX && ballVelocity.x > 0) {
-        console.log("Left scored!!!");
+        // right
+        player1.increaseScore();
+        player1.print();
         resetBall();
     } else if (ball.position.x - ballRadius <= tableProp.minX && ballVelocity.x < 0) {
-        console.log("Right scored!!!");
+        //left
+        player2.increaseScore();
+        player2.print();
         resetBall();
     }
     
