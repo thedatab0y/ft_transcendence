@@ -105,7 +105,7 @@ scene.add(axesHelper);
 const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.update();
 
-//creating players
+//creating players class
 class Player {
     constructor(name)
     {
@@ -124,9 +124,31 @@ class Player {
     }
 }
 
+//player objects
 const player1 = new Player("PLayer 1"); // right
 const player2 = new Player("Player 2"); // left
 
+const gameCon = document.getElementById("gameCon");
+
+const player1Con = document.createElement("div");
+player1Con.style.position = "absolute";
+player1Con.style.top = "10px";
+player1Con.style.left = "10px";
+player1Con.style.color = "white";
+gameCon.appendChild(player1Con);
+
+const player2Con = document.createElement("div");
+player2Con.style.position = "absolute";
+player2Con.style.top = "10px";
+player2Con.style.right = "10px";
+player2Con.style.color = "white";
+gameCon.appendChild(player2Con);
+
+function updateScoreOnDis()
+{
+    player1Con.textContent = `${player1.name}'s score: ${player1.score}`;
+    player2Con.textContent = `${player2.name}'s score: ${player2.score}`;
+}
 
 // Handle window resize
 window.addEventListener('resize', () => {
@@ -233,12 +255,14 @@ function checkCollision() {
     if (ball.position.x + ballRadius >= tableProp.maxX && ballVelocity.x > 0) {
         // right
         player1.increaseScore();
-        player1.print();
+        // player1.print();
+        updateScoreOnDis();
         resetBall();
     } else if (ball.position.x - ballRadius <= tableProp.minX && ballVelocity.x < 0) {
         //left
         player2.increaseScore();
-        player2.print();
+        // player2.print();
+        updateScoreOnDis();
         resetBall();
     }
     
@@ -279,6 +303,9 @@ function resetBall() {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+
+    //display score
+    updateScoreOnDis();
     // function to move rackets within the table boundaries
     racketsMove();
     // console.log('Table Global Position:', table.position);
