@@ -1,0 +1,47 @@
+body{
+	margin: 0;
+	overflow: hidden;
+}
+
+#gameCon{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	height: 7vh;
+	background: #333;
+	/* gap: 1em; */
+}
+
+.player-container{
+	display: flex;
+	flex-direction: row;
+	/* justify-content: flex-end; */
+	color: white;
+	width: 50%;
+	gap: 1em;
+}
+
+.player1{
+	justify-content: flex-end;
+	background: #d6204e;
+}
+
+.player2{
+	justify-content: flex-start;
+	background: #87CEEB;
+}
+
+.player-name{
+	display: flex;
+	align-items: center;
+}
+
+.player1 > h1{
+	margin-right: 10px;
+}
+.player2 > h1 {
+	margin-left: 10px;
+}
+
+
