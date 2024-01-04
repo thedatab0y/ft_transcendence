@@ -58,7 +58,12 @@ const ballMaterial = new THREE.MeshBasicMaterial({
 
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 
+ball.castShadow = true;
+ball.receiveShadow = true;
+
 ball.position.set(0, tableH / 2 + 7, -(tableD / 4));
+
+
 
 scene.add(ball);
 
@@ -71,7 +76,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
-renderer.setClearColor(new THREE.Color(0x808080));
+renderer.setClearColor(new THREE.Color(0x01106C));
 document.body.appendChild(renderer.domElement);
 
 // Add ambient light
@@ -79,16 +84,20 @@ const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
 // Add directional light with shadows from right to left
-const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
-directionalLight.position.set(5, 1, -3);
+const directionalLight = new THREE.DirectionalLight(0xffcc00, 5);
+directionalLight.position.set(tableW / 2, 300, table.position.z / 2);
 directionalLight.castShadow = true;
 
+// Set up shadow camera parameters
 directionalLight.shadow.camera.near = 1;
-directionalLight.shadow.camera.far = 1000;
-directionalLight.shadow.camera.left = -700;
-directionalLight.shadow.camera.right = 700;
-directionalLight.shadow.camera.top = 200;
-directionalLight.shadow.camera.bottom = -200;
+directionalLight.shadow.camera.far = 2000;
+directionalLight.shadow.camera.left = -1200;
+directionalLight.shadow.camera.right = 1200;
+directionalLight.shadow.camera.top = 400;
+directionalLight.shadow.camera.bottom = -400;
+directionalLight.shadow.mapSize.width = 1024;
+directionalLight.shadow.mapSize.height = 1024;
+
 
 scene.add(directionalLight);
 
@@ -305,6 +314,11 @@ function checkCollision() {
 	}
 }
 
+function endGame()
+{
+	console.log("END GAME!");
+}
+
 // reset ball pos 
 function resetBall() {
 	ball.position.set(0, tableH / 2 + 7, -(tableD / 4));
@@ -323,6 +337,12 @@ function animate() {
 	racketsMove();
 	// console.log('Table Global Position:', table.position);
 	checkCollision();
+
+	// if (player1.score == 5 || player2.score == 5)
+	// {
+	// 	endGame();
+	// 	return;
+	// }
 	// Update ball position based on its velocity
 	ball.position.x += ballVelocity.x;
 	ball.position.y += ballVelocity.y;
