@@ -1,0 +1,163 @@
+import { useEffect, useState } from 'react';
+import * as THREE from 'three';
+
+
+
+function GameScene() {
+  const tableW = 1200;
+  const tableH = 75;
+  const tableD = 600;
+  
+  const racketW = 20;
+  const racketH = 100;
+  const racketD = 100;
+  
+  // const tablePosZ = -150;
+  // const ballRadius = 15;
+  
+  // const tableProp = {
+    //   minZ : tablePosZ - tableD / 2 + ballRadius,
+    //   maxZ : tablePosZ + tableD / 2 - ballRadius,
+    //   minX : -tableW / 2,
+    //   maxX: tableW / 2
+    // };
+    
+    const [keyState, setKeyState] = useState({
+    w: false,
+    s: false,
+    up: false,
+    down: false,
+  });
+  
+  // const [ballVelocity, setBallVelocity] = useState(new THREE.Vector3(4, 0, 4));
+  useEffect(() => {
+    // scene
+    const scene = new THREE.Scene();
+    
+    // camera
+    const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 2000);
+    camera.position.set(0, 400, 300);
+    camera.lookAt(0, 0, 0);
+    
+    // renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true; // enable shadows
+    renderer.shadowMap.type = THREE.PCFShadowMap; // soft shadows
+	  renderer.setClearColor(new THREE.Color(0x01106C));
+    document.body.appendChild(renderer.domElement);
+    
+    // ambient light
+    // created and added to scene
+    
+    // table
+    // table created and added to scene
+    
+	  // racket
+    // two rackets created and added to scene
+    
+    // ball
+    // ball created and added to scene
+    
+
+    
+    // directional light
+    // created and added to scene
+    
+    // Properties for ball
+    const halfRacketHeight = racketH / 2;
+    
+    
+    const handleKeyDown = (event) => {
+      if (event.key === 'w') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, w: true }));
+      } else if (event.key === 's') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, s: true }));
+      } else if (event.key === 'ArrowUp') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, up: true }));
+      } else if (event.key === 'ArrowDown') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, down: true }));
+      }
+    };
+
+    const handleKeyUp = (event) => {
+      if (event.key === 'w') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, w: false }));
+      } else if (event.key === 's') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, s: false }));
+      } else if (event.key === 'ArrowUp') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, up: false }));
+      } else if (event.key === 'ArrowDown') {
+        setKeyState((prevKeyState) => ({ ...prevKeyState, down: false }));
+      }
+    };
+
+    const racketsMove = () => {
+      if (keyState.w && racket.position.z > -395 && racket.position.z <= 95) {
+        racket.translateZ(-5); // Move the racket backward
+      }
+
+      if (keyState.s && racket.position.z >= -395 && racket.position.z < 95) {
+        racket.translateZ(5); // Move the racket forward
+      }
+
+      if (keyState.up && rRacket.position.z > -395 && rRacket.position.z <= 95) {
+        rRacket.translateZ(-5); // Move the right racket backward
+      }
+
+      if (keyState.down && rRacket.position.z >= -395 && rRacket.position.z < 95) {
+        rRacket.translateZ(5); // Move the right racket forward
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      racketsMove();
+
+    // racket position to stay within table boundaries
+	  racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
+	  rRacket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, rRacket.position.y)); 
+      renderer.render(scene, camera);
+    };
+
+    const resizeHandler = () => {
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+  
+      camera.aspect = newWidth / newHeight;
+      camera.updateProjectionMatrix();
+  
+      renderer.setSize(newWidth, newHeight);
+    };
+
+    window.addEventListener('resize', resizeHandler);
+
+
+    animate();
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('resize', resizeHandler);
+
+      // Clean up Three.js scene when component unmounts
+      scene.remove(table);
+      scene.remove(racket);
+      scene.remove(rRacket);
+      scene.remove(ball);
+
+      document.body.removeChild(renderer.domElement);
+
+
+      renderer.forceContextLoss();
+      renderer.dispose();
+    };
+  }, [keyState]);
+
+  return null; // No need to render anything in this component
+}
+
+export default GameScene;
