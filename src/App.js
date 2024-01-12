@@ -10,6 +10,7 @@ const tableH = 75;
 const tableD = 600;
 const tableZ = -tableD / 4;
 const tablePosZ = -150;
+const moveDistance = 5;
 
 // racket prop
 const racketW = 20;
@@ -21,7 +22,7 @@ const colProp = {
   minZ : tablePosZ - tableD / 2 + ballRadius,
   maxZ : tablePosZ + tableD / 2 -ballRadius
 };
-const ballVelocity = [5, 0, 5];
+const ballVelocity = [10, 0, 10];
 
 function Ball({position}) {
   const material = new MeshPhongMaterial({ color: 0xffffff });
@@ -34,25 +35,6 @@ function Ball({position}) {
 
 
 
-function Racket({ position, targetPosition, lerpAmount }) {
-  const material = new MeshPhongMaterial({ color: 0xff0000, shininess: 30 });
-
-  const [currentPosition, setCurrentPosition] = useState(position);
-
-  useEffect(() => {
-    setCurrentPosition((prev) => [
-      lerp(prev[0], targetPosition[0], lerpAmount),
-      lerp(prev[1], targetPosition[1], lerpAmount),
-      lerp(prev[2], targetPosition[2], lerpAmount),
-    ]);
-  }, [targetPosition, lerpAmount]);
-
-  return (
-    <mesh position={position} material={material} castShadow receiveShadow>
-      <boxGeometry args={[racketW, racketH, racketD]} />
-    </mesh>
-  );
-}
 
 
 function Table() {
@@ -60,6 +42,16 @@ function Table() {
   return (
     <mesh position={[0, -10, -tableD / 4]} material={material} receiveShadow castShadow>
       <boxGeometry args={[tableW, tableH, tableD]} />
+    </mesh>
+  );
+}
+
+function Racket({ position}) {
+  const material = new MeshPhongMaterial({ color: 0xff0000, shininess: 30 });
+
+  return (
+    <mesh position={position} material={material} castShadow receiveShadow>
+      <boxGeometry args={[racketW, racketH, racketD]} />
     </mesh>
   );
 }
@@ -79,36 +71,30 @@ function CanvasContent() {
   const { camera, gl } = useThree();
   const [racket1TargetPosition, setRacket1TargetPosition] = useState([-((tableW / 2) - (racketW / 2) - 10), racketH / 5, -(tableD / 4)]);
   const [racket2TargetPosition, setRacket2TargetPosition] = useState([(tableW / 2) - (racketW / 2) - 10, racketH / 5, -(tableD / 4)]);
-  const lerpAmount = 0.6; // Adjust this value based on the desired smoothness
+  const lerpAmount = 2; // Adjust this value based on the desired smoothness
   const [ballPosition, setBallPosition] = useState([0, tableH / 2 + 7, -(tableD / 4)]);
 
+  const [userInput, setUserInput] = useState({
+    ArrowUp: false,
+    ArrowDown: false,
+    w: false,
+    s: false,
+  });
+
   const handleKeyDown = (event) => {
-    const moveDistance = 20;
-
-    switch (event.key) {
-      case 'ArrowUp':
-        setRacket2TargetPosition((prev) => [prev[0], prev[1], prev[2] + moveDistance]);
-        break;
-      case 'ArrowDown':
-        setRacket2TargetPosition((prev) => [prev[0], prev[1], prev[2] - moveDistance]);
-        break;
-      case 'w':
-        setRacket1TargetPosition((prev) => [prev[0], prev[1], prev[2] + moveDistance]);
-        break;
-      case 's':
-        setRacket1TargetPosition((prev) => [prev[0], prev[1], prev[2] - moveDistance]);
-        break;
-      default:
-        break;
-    }
-  };
-
+    setUserInput((prev) => ({...prev, [event.key]: true}));
+  }
+  const handleKeyUp = (event) => {
+    setUserInput((prev) => ({ ...prev, [event.key]: false }));
+  }
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
 
@@ -131,25 +117,26 @@ function CanvasContent() {
 
   useFrame(() => {
     setRacket1TargetPosition((prev) => [
-      lerp(prev[0], racket1TargetPosition[0], lerpAmount),
-      lerp(prev[1], racket1TargetPosition[1], lerpAmount),
+      prev[0],
+      prev[1],
       lerp(
-        Math.max(-395, Math.min(95, prev[2])),
-        racket1TargetPosition[2],
+        prev[2],
+        Math.max(-400, Math.min(100, prev[2] + (userInput.w ? moveDistance : userInput.s ? -moveDistance : 0))),
         lerpAmount
       ),
     ]);
   
     setRacket2TargetPosition((prev) => [
-      lerp(prev[0], racket2TargetPosition[0], lerpAmount),
-      lerp(prev[1], racket2TargetPosition[1], lerpAmount),
+      prev[0],
+      prev[1],
       lerp(
-        Math.max(-395, Math.min(95, prev[2])),
-        racket2TargetPosition[2],
+        prev[2],
+        Math.max(-400, Math.min(100, prev[2] + (userInput.ArrowUp ? moveDistance : userInput.ArrowDown ? -moveDistance : 0))),
         lerpAmount
       ),
     ]);
   });
+  
 
   useFrame(() => {
     // console.log(`ballVelocity before seeting  ${ballVelocity[2]}`);
@@ -222,8 +209,8 @@ function CanvasContent() {
         shadow-mapSize-height={1024}
       />
       <Table />
-      <Racket position={racket1TargetPosition} targetPosition={racket1TargetPosition} lerpAmount={lerpAmount} />
-      <Racket position={racket2TargetPosition} targetPosition={racket2TargetPosition} lerpAmount={lerpAmount} /> 
+      <Racket position={racket1TargetPosition} />
+      <Racket position={racket2TargetPosition} /> 
       <Ball position={ballPosition}/>
     </>
   );
