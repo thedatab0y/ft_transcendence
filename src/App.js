@@ -20,7 +20,9 @@ const ballRadius = 15;
 
 const colProp = {
   minZ : tablePosZ - tableD / 2 + ballRadius,
-  maxZ : tablePosZ + tableD / 2 -ballRadius
+  maxZ : tablePosZ + tableD / 2 -ballRadius,
+  maxX: tableW / 2,
+  minX: -tableW / 2
 };
 const ballVelocity = [10, 0, 10];
 
@@ -146,9 +148,17 @@ function CanvasContent() {
       prev[2] + ballVelocity[2],
     ]);
 
-    if (ballPosition[0] + 15 >= tableW / 2 || ballPosition[0] - 15 <= -tableW / 2)
+    if (ballPosition[0] + ballRadius >= colProp.maxX && ballVelocity[0] > 0)
     {
-      ballVelocity[0] = -ballVelocity[0];
+      //reset ball
+      setBallPosition([0, tableH / 2 + 7, -(tableD / 4)]);
+      //update score
+    }
+    else if (ballPosition[0] - ballRadius <= colProp.minX && ballVelocity[0] < 0)
+    {
+      // reset ball
+      setBallPosition([0, tableH / 2 + 7, -(tableD / 4)]);
+      // update score
     }
     	// Check collision with table depth boundaries
     if (ballPosition[2] - ballRadius <= colProp.minZ && ballVelocity[2] < 0) {
