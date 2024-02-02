@@ -327,42 +327,50 @@ function resetBall() {
 	// ballVelocity.set(2, 0, 2); // Set initial velocity
 }
 
-// Animation loop
-function animate() {
-	requestAnimationFrame(animate);
+const startButton = document.getElementById("startButton");
 
-	//display score
-	updateScoreOnDis();
-	// function to move rackets within the table boundaries
-	racketsMove();
-	// console.log('Table Global Position:', table.position);
-	checkCollision();
+startButton.addEventListener("click", startGame);
 
-	// if (player1.score == 5 || player2.score == 5)
-	// {
-	// 	endGame();
-	// 	return;
-	// }
-	// Update ball position based on its velocity
-	ball.position.x += ballVelocity.x;
-	ball.position.y += ballVelocity.y;
-	ball.position.z += ballVelocity.z;
+function startGame()
+{
 
-	// ball position to stay within table boundaries
-	ball.position.x = Math.max(tableProp.minX , Math.min(tableProp.maxX , ball.position.x));
-	ball.position.z = Math.max(tableProp.minZ, Math.min(tableProp.maxZ, ball.position.z));
-
-	// let m = -(tableD / 1.5) + 25;
-	// let mi = (tableD / 4) - 21;
-	// console.log(`Max: ${m}, Min: ${mi}`);
-
-	// console.log(ball.position);
-	// racket position to stay within table boundaries
-	racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
-	rRacket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, rRacket.position.y));
-
-	renderer.render(scene, camera);
-	orbit.update();
+	// Animation loop
+	function animate() {
+		requestAnimationFrame(animate);
+	
+		//display score
+		updateScoreOnDis();
+		// function to move rackets within the table boundaries
+		racketsMove();
+		// console.log('Table Global Position:', table.position);
+		checkCollision();
+	
+		// if (player1.score == 5 || player2.score == 5)
+		// {
+		// 	endGame();
+		// 	return;
+		// }
+		// Update ball position based on its velocity
+		ball.position.x += ballVelocity.x;
+		ball.position.y += ballVelocity.y;
+		ball.position.z += ballVelocity.z;
+	
+		// ball position to stay within table boundaries
+		ball.position.x = Math.max(tableProp.minX , Math.min(tableProp.maxX , ball.position.x));
+		ball.position.z = Math.max(tableProp.minZ, Math.min(tableProp.maxZ, ball.position.z));
+	
+		// let m = -(tableD / 1.5) + 25;
+		// let mi = (tableD / 4) - 21;
+		// console.log(`Max: ${m}, Min: ${mi}`);
+	
+		// console.log(ball.position);
+		// racket position to stay within table boundaries
+		racket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, racket.position.y));
+		rRacket.position.y = Math.max(-tableH / 2 + halfRacketHeight, Math.min(tableH / 2 - halfRacketHeight, rRacket.position.y));
+	
+		renderer.render(scene, camera);
+		orbit.update();
+	}
+	
+	animate();
 }
-
-animate();
